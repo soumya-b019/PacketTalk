@@ -5,6 +5,8 @@ export const generateToken = (userId, res) => {
     expiresIn: "7d",
   });
 
+  // here, res is the response where we are
+  // setting the cookie
   res.cookie("jwt", token, {
     maxAge: 7 * 24 * 60 * 60 * 1000, // in ms
     httpOnly: true,

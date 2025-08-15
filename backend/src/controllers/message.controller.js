@@ -1,11 +1,14 @@
 import User from "../models/user.model.js";
 import Message from "../models/message.model.js";
+import cloudinary from "../lib/cloudinary.js";
 
 export const getUsersForSidebar = async (req, res) => {
   try {
-    const loggedInUserId = req.user._id;
+    const myId = req.user._id;
+    // here, as in my sidebar I want to show every user
+    // except me to chat with
     const filteredUsers = await User.find({
-      _id: { $ne: loggedInUserId },
+      _id: { $ne: myId },
     }).select("-password");
 
     res
@@ -50,11 +53,18 @@ export const sendMessage = async (req, res) => {
     const { id: receiverId } = req.params;
     const senderId = req.user._id;
 
+    let imageUrl = "";
+    if (image) {
+      // upload image to cloudinary & get its url
+      const uploadResponse = await cloudinary.uploader.upload(image);
+      imageUrl = uploadResponse.secure_url;
+    }
+
     const newMessage = new Message({
       senderId,
       receiverId,
       text,
-      // image: imageUrl
+      image: imageUrl,
     });
 
     await newMessage.save();

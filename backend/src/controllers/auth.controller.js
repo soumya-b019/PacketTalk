@@ -1,6 +1,7 @@
 import { generateToken } from "../lib/utils.js";
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
+import cloudinary from "../lib/cloudinary.js";
 
 export const signup = async (req, res) => {
   try {
@@ -16,20 +17,25 @@ export const signup = async (req, res) => {
         .json({ message: "Password must be atleast of 8 characters" });
     }
 
-    const user = await User.findOne({ email });
+    const userExists = await User.findOne({ email });
 
-    if (user) return res.status(400).json({ message: "Email already exists" });
+    if (userExists)
+      return res.status(400).json({ message: "Email already exists" });
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // creates a new instance of the User model with the provided user details
     const newUser = new User({
       fullName,
       email,
       password: hashedPassword,
     });
 
+    // checking whether new instance is created or not
     if (newUser) {
+      // this newUser instance automatically generates a unique _id
+      // it is created locally even before saving it to the database
       const userId = newUser._id;
 
       generateToken(userId, res);
@@ -97,4 +103,39 @@ export const logout = async (req, res) => {
   }
 };
 
-export const updateProfile = async (req, res) => {};
+export const updateProfile = async (req, res) => {
+  try {
+    const { profilePic } = req.body;
+    const userId = req.user._id;
+
+    if (!profilePic) {
+      return res.status(400).json({ message: "Profile pic is required" });
+    }
+
+    const uploadResponse = await cloudinary.uploader.upload(profilePic);
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        profilePic: uploadResponse.secure_url,
+      },
+      { new: true }
+    );
+
+    res.status(200).json({
+      data: updatedUser,
+      message: "Profile picture updated successfully",
+    });
+  } catch (error) {
+    console.log("Error in updating controller", error.message);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const checkAuth = (req, res) => {
+  try {
+    res.status(200).json(req.user);
+  } catch (error) {
+    console.log("Error in checkAuth controller", error.message);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};

@@ -14,6 +14,8 @@ const messageSchema = new mongoose.Schema(
       required: true,
     },
 
+    // here text & image aren't marked required true bcoz,
+    // a msg could have either text, image or both
     text: {
       type: String,
     },

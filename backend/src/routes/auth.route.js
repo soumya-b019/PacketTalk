@@ -4,6 +4,7 @@ import {
   login,
   logout,
   updateProfile,
+  checkAuth,
 } from "../controllers/auth.controller.js";
 import { protectedRoute } from "../middleware/auth.middleware.js";
 
@@ -14,5 +15,8 @@ router.post("/login", login);
 router.post("/logout", logout);
 
 router.put("/update-profile", protectedRoute, updateProfile);
+
+// to check authentication when user refreshes the page
+router.get("/check", protectedRoute, checkAuth);
 
 export default router;
