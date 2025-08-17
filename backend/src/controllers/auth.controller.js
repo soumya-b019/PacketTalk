@@ -5,7 +5,7 @@ import cloudinary from "../lib/cloudinary.js";
 
 export const signup = async (req, res) => {
   try {
-    const { fullName, email, password, profilePic } = req.body;
+    const { fullName, email, password } = req.body;
 
     if (!fullName || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
@@ -38,8 +38,10 @@ export const signup = async (req, res) => {
       // it is created locally even before saving it to the database
       const userId = newUser._id;
 
+      // here passing response(res) inorder to store the cookie
       generateToken(userId, res);
-      await newUser.save();
+      const nr = await newUser.save();
+      console.log(nr);
 
       res.status(201).json({
         data: {
@@ -85,6 +87,12 @@ export const login = async (req, res) => {
     generateToken(user._id, res);
 
     res.status(200).json({
+      data: {
+        _id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        profilePic: user.profilePic,
+      },
       message: "Logged in successfully",
     });
   } catch (error) {
@@ -133,7 +141,7 @@ export const updateProfile = async (req, res) => {
 
 export const checkAuth = (req, res) => {
   try {
-    res.status(200).json(req.user);
+    res.status(200).json({ data: req.user });
   } catch (error) {
     console.log("Error in checkAuth controller", error.message);
     return res.status(500).json({ message: "Internal Server Error" });

@@ -14,7 +14,7 @@ router.post("/signup", signup);
 router.post("/login", login);
 router.post("/logout", logout);
 
-router.put("/update-profile", protectedRoute, updateProfile);
+router.patch("/update-profile", protectedRoute, updateProfile);
 
 // to check authentication when user refreshes the page
 router.get("/check", protectedRoute, checkAuth);
