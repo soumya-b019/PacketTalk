@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import fs from "fs";
 
 import path from "path";
 
@@ -37,6 +38,23 @@ if (process.env.NODE_ENV === "production") {
 
   console.log("Frontend build path:", frontendPath);
   console.log("Index file path:", indexPath);
+
+  // Check if the frontend build directory exists
+  if (!fs.existsSync(frontendPath)) {
+    console.error(
+      "ERROR: Frontend build directory does not exist:",
+      frontendPath
+    );
+    console.error("This means the frontend build failed or didn't complete");
+  } else {
+    console.log("Frontend build directory exists");
+  }
+
+  if (!fs.existsSync(indexPath)) {
+    console.error("ERROR: Frontend index.html does not exist:", indexPath);
+  } else {
+    console.log("Frontend index.html exists");
+  }
 
   // Serve static files from the React app build directory
   app.use(express.static(frontendPath));
