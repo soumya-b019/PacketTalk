@@ -76,19 +76,18 @@ if (process.env.NODE_ENV === "production") {
         </html>
       `);
     });
-    return;
+  } else {
+    console.log("Frontend build path:", frontendPath);
+    console.log("Index file path:", indexPath);
+
+    // Serve static files from the React app build directory
+    app.use(express.static(frontendPath));
+
+    // Handle React routing, return all requests to React app
+    app.get("*", (req, res) => {
+      res.sendFile(indexPath);
+    });
   }
-
-  console.log("Frontend build path:", frontendPath);
-  console.log("Index file path:", indexPath);
-
-  // Serve static files from the React app build directory
-  app.use(express.static(frontendPath));
-
-  // Handle React routing, return all requests to React app
-  app.get("*", (req, res) => {
-    res.sendFile(indexPath);
-  });
 }
 
 app.listen(PORT, () => {
