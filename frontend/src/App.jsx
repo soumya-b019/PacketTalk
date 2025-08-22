@@ -20,8 +20,6 @@ const App = () => {
     checkAuth();
   }, [checkAuth]);
 
-  console.log("Auth User: ", authUser);
-
   if (isCheckingAuth && !authUser) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -31,7 +29,7 @@ const App = () => {
   }
 
   return (
-    <div className="text-red-500 bg-white">
+    <div className="">
       <Navbar />
 
       <Routes>
