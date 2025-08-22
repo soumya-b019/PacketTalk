@@ -5,7 +5,7 @@
   "scripts": {
     "build": "npm run build:backend && npm run build:frontend && npm run verify:build",
     "build:backend": "cd backend && npm install",
-    "build:frontend": "cd frontend && rm -rf node_modules package-lock.json && npm install && npm run build",
+    "build:frontend": "cd frontend && rm -rf node_modules package-lock.json && npm install && npm run build && echo 'Frontend build completed' && ls -la dist/",
     "verify:build": "node -e \"const fs=require('fs'); const path='./frontend/dist/index.html'; if(!fs.existsSync(path)){console.error('ERROR: Frontend build failed - index.html not found at', path); process.exit(1);} console.log('✅ Frontend build verified successfully');\"",
     "start": "npm run start --prefix backend"
   },

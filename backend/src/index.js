@@ -33,28 +33,54 @@ app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 
 if (process.env.NODE_ENV === "production") {
-  const frontendPath = path.join(__dirname, "../../frontend/dist");
-  const indexPath = path.join(frontendPath, "index.html");
+  // Try multiple possible paths for the frontend build
+  const possiblePaths = [
+    path.join(__dirname, "../../frontend/dist"),
+    path.join(__dirname, "../frontend/dist"),
+    path.join(__dirname, "./frontend/dist"),
+    path.join(process.cwd(), "frontend/dist"),
+  ];
+
+  let frontendPath = null;
+  let indexPath = null;
+
+  for (const testPath of possiblePaths) {
+    const testIndexPath = path.join(testPath, "index.html");
+    if (fs.existsSync(testIndexPath)) {
+      frontendPath = testPath;
+      indexPath = testIndexPath;
+      console.log("Found frontend build at:", frontendPath);
+      break;
+    }
+  }
+
+  if (!frontendPath) {
+    console.error(
+      "ERROR: Could not find frontend build in any of these paths:"
+    );
+    possiblePaths.forEach((p) => console.error("  -", p));
+
+    // Serve a simple error page instead of crashing
+    app.get("*", (req, res) => {
+      res.status(500).send(`
+        <html>
+          <head><title>Build Error</title></head>
+          <body>
+            <h1>Build Error</h1>
+            <p>Frontend build files not found. Please check the build process.</p>
+            <p>Searched paths:</p>
+            <ul>
+              ${possiblePaths.map((p) => `<li>${p}</li>`).join("")}
+            </ul>
+          </body>
+        </html>
+      `);
+    });
+    return;
+  }
 
   console.log("Frontend build path:", frontendPath);
   console.log("Index file path:", indexPath);
-
-  // Check if the frontend build directory exists
-  if (!fs.existsSync(frontendPath)) {
-    console.error(
-      "ERROR: Frontend build directory does not exist:",
-      frontendPath
-    );
-    console.error("This means the frontend build failed or didn't complete");
-  } else {
-    console.log("Frontend build directory exists");
-  }
-
-  if (!fs.existsSync(indexPath)) {
-    console.error("ERROR: Frontend index.html does not exist:", indexPath);
-  } else {
-    console.log("Frontend index.html exists");
-  }
 
   // Serve static files from the React app build directory
   app.use(express.static(frontendPath));
