@@ -13,6 +13,7 @@ const SignUpPage = () => {
   const [isSigningUp, setIsSigningUp] = useState(false);
 
   const updateAuthUser = useAuthStore((state) => state.updateAuthUser);
+  const connectSocket = useAuthStore((state) => state.connectSocket);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -55,6 +56,7 @@ const SignUpPage = () => {
       const res = await axiosInstance.post("/auth/signup", formData);
       updateAuthUser(res.data.data);
       toast.success("Account created successfully");
+      connectSocket();
     } catch (error) {
       console.error("Signup error:", error);
       toast.error(

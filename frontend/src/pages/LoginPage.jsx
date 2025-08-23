@@ -12,6 +12,7 @@ const LoginPage = () => {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const updateAuthUser = useAuthStore((state) => state.updateAuthUser);
+  const connectSocket = useAuthStore((state) => state.connectSocket);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -50,6 +51,7 @@ const LoginPage = () => {
       const res = await axiosInstance.post("/auth/login", formData);
       updateAuthUser(res.data.data);
       toast.success("Login successful");
+      connectSocket();
     } catch (error) {
       console.error("Login error:", error);
       toast.error(

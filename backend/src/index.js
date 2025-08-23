@@ -10,11 +10,11 @@ import authRoutes from "./routes/auth.route.js";
 import messageRoutes from "./routes/message.route.js";
 import { connectDB } from "./lib/db.js";
 
+import { app, server } from "./lib/socket.js";
+
 dotenv.config();
 const PORT = process.env.PORT ?? 8080;
 const __dirname = path.resolve();
-
-const app = express();
 
 app.use(
   cors({
@@ -90,7 +90,7 @@ if (process.env.NODE_ENV === "production") {
   }
 }
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running on PORT: ${PORT}`);
   connectDB();
 });
